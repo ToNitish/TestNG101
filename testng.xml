@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="TestNG101 Suite" parallel="classes" thread-count="8">
+    <listeners>
+        <listener class-name="com.testng101.listeners.LogListener" />
+    </listeners>
     <test name="Chrome Test">
         <parameter name="browser" value="Chrome"/>
         <parameter name="version" value="128.0"/>

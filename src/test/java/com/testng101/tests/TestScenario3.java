@@ -3,25 +3,28 @@ package com.testng101.tests;
 import com.testng101.base.BaseTest;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.HasCapabilities;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 
 public class TestScenario3 extends BaseTest {
+    private static final Logger log = LoggerFactory.getLogger(TestScenario3.class);
 
     @Test(timeOut = 20000)
     public void testScenario3() {
         WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(10));
 
         // Detect if the current browser is Internet Explorer
-        String browserName = ((RemoteWebDriver) getDriver()).getCapabilities().getBrowserName().toLowerCase();
+        String browserName = ((HasCapabilities) getDriver()).getCapabilities().getBrowserName().toLowerCase();
         boolean isIE = browserName.contains("internet explorer") || browserName.contains("ie");
 
         // 1. Click "Javascript Alerts"
@@ -52,14 +55,14 @@ public class TestScenario3 extends BaseTest {
 
             // 4. Validate the alert message "I am an alert box!"
             String alertText = alert.getText();
-            System.out.println("Alert text is: " + alertText);
+            log.info("Alert text is: {}", alertText);
             Assert.assertEquals(alertText, "I am an alert box!", "Alert text does not match!");
 
             // 5. Click OK
             alert.accept();
         } catch (TimeoutException e) {
             if (isIE) {
-                System.out.println("Warning: Alert handling timed out on Internet Explorer 11. " +
+                log.warn("Warning: Alert handling timed out on Internet Explorer 11. " +
                         "This is a known RemoteWebDriver focus/alert limitation on the legacy IE 11 grid. Proceeding gracefully...");
             } else {
                 throw e;

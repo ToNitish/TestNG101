@@ -1,5 +1,6 @@
 package com.testng101.base;
 
+import com.testng101.listeners.SeleniumLogListener;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -8,6 +9,9 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.remote.AbstractDriverOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.events.EventFiringDecorator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
@@ -17,7 +21,8 @@ import java.net.URL;
 import java.util.HashMap;
 
 public class BaseTest {
-    protected static ThreadLocal<RemoteWebDriver> driver = new ThreadLocal<>();
+    protected static final Logger log = LoggerFactory.getLogger(BaseTest.class);
+    protected static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
 
     public WebDriver getDriver() {
         return driver.get();
@@ -91,11 +96,15 @@ public class BaseTest {
 
         options.setCapability("LT:Options", ltOptions);
 
-        RemoteWebDriver webDriver = new RemoteWebDriver(new URL(hubURL), options);
-        driver.set(webDriver);
+        RemoteWebDriver rawDriver = new RemoteWebDriver(new URL(hubURL), options);
+        
+        // Wrap the raw driver with the event firing decorator
+        SeleniumLogListener seleniumListener = new SeleniumLogListener();
+        WebDriver decoratedDriver = new EventFiringDecorator<>(seleniumListener).decorate(rawDriver);
+        driver.set(decoratedDriver);
 
-        // Print the RemoteWebDriver Session ID to the console for tracking and submission
-        System.out.println(">>> LambdaTest Session Created: " + browser + " (" + version + ") on " + platform + " - Session ID: " + webDriver.getSessionId());
+        // Log session details
+        log.info(">>> LambdaTest Session Created: {} ({}) on {} - Session ID: {}", browser, version, platform, rawDriver.getSessionId());
 
         // Open the test URL
         getDriver().get("https://www.testmuai.com/selenium-playground/");
