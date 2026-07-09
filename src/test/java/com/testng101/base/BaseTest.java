@@ -91,7 +91,11 @@ public class BaseTest {
 
         options.setCapability("LT:Options", ltOptions);
 
-        driver.set(new RemoteWebDriver(new URL(hubURL), options));
+        RemoteWebDriver webDriver = new RemoteWebDriver(new URL(hubURL), options);
+        driver.set(webDriver);
+
+        // Print the RemoteWebDriver Session ID to the console for tracking and submission
+        System.out.println(">>> LambdaTest Session Created: " + browser + " (" + version + ") on " + platform + " - Session ID: " + webDriver.getSessionId());
 
         // Open the test URL
         getDriver().get("https://www.testmuai.com/selenium-playground/");
